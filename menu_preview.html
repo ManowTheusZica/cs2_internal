@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRISM Menu Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;font-family:'Inter',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:40px}
+
+/* Simulated CS2 Background */
+.game-bg{position:fixed;inset:0;background:linear-gradient(135deg,#0a1628,#0d1f3c,#0a1628);z-index:0}
+.game-bg::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+
+.content{position:relative;z-index:1;display:flex;gap:40px;align-items:flex-start}
+
+/* CS2 HUD Elements */
+.hud{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:20px;align-items:center;z-index:2}
+.hud-hp{width:200px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.hud-hp-fill{width:85%;height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:3px}
+.hud-ammo{color:#fff;font-size:14px;font-weight:700}
+.hud-weapon{color:rgba(255,255,255,.5);font-size:11px}
+.hud-crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1}
+.hud-crosshair::before,.hud-crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.6)}
+.hud-crosshair::before{width:2px;height:12px;left:-1px;top:-6px}
+.hud-crosshair::after{width:12px;height:2px;top:-1px;left:-6px}
+
+/* PRISM Menu */
+.menu{width:420px;background:rgba(18,18,30,.95);backdrop-filter:blur(20px);border:1px solid rgba(99,102,241,.2);border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 0 1px rgba(99,102,241,.1);position:relative}
+.menu::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(99,102,241,.5),rgba(168,85,247,.5),transparent)}
+
+/* Header */
+.menu-header{padding:14px 16px;background:rgba(20,20,35,.8);border-bottom:1px solid rgba(99,102,241,.1);display:flex;align-items:center;justify-content:space-between;cursor:move}
+.menu-title{font-size:16px;font-weight:800;color:#fff;letter-spacing:1px}
+.menu-title span{background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.menu-subtitle{font-size:10px;color:#4b5563;margin-top:2px}
+.menu-close{width:24px;height:24px;border-radius:6px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;transition:all .2s}
+.menu-close:hover{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.4)}
+
+/* Tabs */
+.menu-tabs{display:flex;padding:0 8px;background:rgba(15,15,25,.5);border-bottom:1px solid rgba(99,102,241,.06)}
+.menu-tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;font-weight:600;color:#4b5563;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.5px}
+.menu-tab:hover{color:#94a3b8;background:rgba(99,102,241,.03)}
+.menu-tab.active{color:#a5b4fc;border-bottom-color:#6366f1;background:rgba(99,102,241,.05)}
+
+/* Content */
+.menu-content{padding:16px;min-height:260px}
+
+/* Toggle Row */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;margin-bottom:4px;transition:background .15s}
+.toggle-row:hover{background:rgba(99,102,241,.05)}
+.toggle-label{font-size:13px;color:#e2e8f0;font-weight:500}
+
+/* Toggle Switch */
+.toggle{width:40px;height:20px;border-radius:10px;background:#2a2a3a;position:relative;cursor:pointer;transition:all .2s;border:1px solid #3a3a4a}
+.toggle.on{background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,.3)}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:1px;left:1px;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle.on::after{left:21px}
+
+/* Slider */
+.slider-row{padding:8px 12px;margin-bottom:4px}
+.slider-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.slider-label{font-size:13px;color:#e2e8f0;font-weight:500}
+.slider-value{font-size:12px;color:#6366f1;font-weight:600;font-family:'JetBrains Mono',monospace}
+.slider-track{width:100%;height:4px;background:#2a2a3a;border-radius:2px;position:relative;cursor:pointer}
+.slider-fill{height:100%;background:linear-gradient(90deg,#6366f1,#a855f7);border-radius:2px;transition:width .15s}
+.slider-knob{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:-5px;box-shadow:0 1px 4px rgba(0,0,0,.3);border:2px solid #6366f1;transition:left .15s}
+
+/* Section Label */
+.section-label{font-size:10px;font-weight:700;color:#6366f1;letter-spacing:1px;text-transform:uppercase;padding:8px 12px 4px;margin-top:4px}
+
+/* Keybind */
+.keybind{display:flex;align-items:center;gap:8px;padding:8px 12px}
+.keybind-label{font-size:13px;color:#e2e8f0;font-weight:500;flex:1}
+.keybind-key{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;color:#a5b4fc;font-family:'JetBrains Mono',monospace}
+
+/* Status Bar */
+.menu-status{padding:8px 16px;background:rgba(15,15,25,.8);border-top:1px solid rgba(99,102,241,.06);display:flex;justify-content:space-between;align-items:center}
+.status-item{display:flex;align-items:center;gap:6px;font-size:10px;color:#4b5563}
+.status-dot{width:6px;height:6px;border-radius:50%}
+.status-dot.green{background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.5)}
+.status-dot.red{background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.5)}
+
+/* Key hint */
+.key-hint{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(18,18,30,.9);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:8px 16px;color:#94a3b8;font-size:12px;z-index:10;display:flex;align-items:center;gap:8px}
+.key-hint kbd{background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.2);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;color:#a5b4fc;font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="game-bg"></div>
+
+<!-- CS2 HUD -->
+<div class="hud-crosshair"></div>
+<div class="hud">
+<div>
+<div class="hud-hp"><div class="hud-hp-fill"></div></div>
+</div>
+<div class="hud-ammo">30 / 90</div>
+<div class="hud-weapon">AK-47 | Redline</div>
+</div>
+
+<!-- Key Hint -->
+<div class="key-hint">
+Press <kbd>]</kbd> to toggle menu
+</div>
+
+<!-- PRISM Menu -->
+<div class="menu">
+<div class="menu-header">
+<div>
+<div class="menu-title"><span>PRISM</span></div>
+<div class="menu-subtitle">CS2 External v7.0 | Offsets: ago/2026</div>
+</div>
+<div class="menu-close">X</div>
+</div>
+
+<div class="menu-tabs">
+<div class="menu-tab active" onclick="switchTab(this)">AIMBOT</div>
+<div class="menu-tab" onclick="switchTab(this)">ESP</div>
+<div class="menu-tab" onclick="switchTab(this)">TRIGGER</div>
+<div class="menu-tab" onclick="switchTab(this)">SKINS</div>
+<div class="menu-tab" onclick="switchTab(this)">MISC</div>
+</div>
+
+<!-- AIMBOT TAB -->
+<div class="menu-content" id="tab-aimbot">
+<div class="section-label">Aimbot Settings</div>
+
+<div class="toggle-row">
+<span class="toggle-label">Enable Aimbot</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+
+<div class="toggle-row">
+<span class="toggle-label">Team Check</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+
+<div class="toggle-row">
+<span class="toggle-label">Recoil Control (RCS)</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+
+<div class="slider-row">
+<div class="slider-header">
+<span class="slider-label">FOV</span>
+<span class="slider-value" id="fov-val">90</span>
+</div>
+<div class="slider-track" onclick="setSlider(this, 90, 'fov-val')">
+<div class="slider-fill" style="width:50%"></div>
+<div class="slider-knob" style="left:calc(50% - 7px)"></div>
+</div>
+</div>
+
+<div class="slider-row">
+<div class="slider-header">
+<span class="slider-label">Smoothing</span>
+<span class="slider-value" id="smooth-val">5.0</span>
+</div>
+<div class="slider-track" onclick="setSlider(this, 5, 'smooth-val')">
+<div class="slider-fill" style="width:22%"></div>
+<div class="slider-knob" style="left:calc(22% - 7px)"></div>
+</div>
+</div>
+
+<div class="keybind">
+<span class="toggle-label">Aim Key</span>
+<span class="keybind-key">RIGHT ALT</span>
+</div>
+</div>
+
+<!-- ESP TAB (hidden) -->
+<div class="menu-content" id="tab-esp" style="display:none">
+<div class="section-label">Visual Settings</div>
+
+<div class="toggle-row">
+<span class="toggle-label">Enable ESP</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Show Box</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Show Name</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Health Bar</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Snapline</span>
+<div class="toggle" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Distance</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">FOV Circle</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Team Check</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+</div>
+
+<!-- TRIGGER TAB (hidden) -->
+<div class="menu-content" id="tab-trigger" style="display:none">
+<div class="section-label">Triggerbot</div>
+
+<div class="toggle-row">
+<span class="toggle-label">Enable Trigger</span>
+<div class="toggle" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Team Check</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+
+<div class="slider-row">
+<div class="slider-header">
+<span class="slider-label">Delay (ms)</span>
+<span class="slider-value">50</span>
+</div>
+<div class="slider-track">
+<div class="slider-fill" style="width:25%"></div>
+<div class="slider-knob" style="left:calc(25% - 7px)"></div>
+</div>
+</div>
+
+<div class="keybind">
+<span class="toggle-label">Trigger Key</span>
+<span class="keybind-key">LEFT ALT</span>
+</div>
+</div>
+
+<!-- SKINS TAB (hidden) -->
+<div class="menu-content" id="tab-skins" style="display:none">
+<div class="section-label">Inventory Changer</div>
+
+<div class="toggle-row">
+<span class="toggle-label">Enable Skins</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+
+<div class="slider-row">
+<div class="slider-header">
+<span class="slider-label">Wear (Float)</span>
+<span class="slider-value">0.01</span>
+</div>
+<div class="slider-track">
+<div class="slider-fill" style="width:1%"></div>
+<div class="slider-knob" style="left:calc(1% - 7px)"></div>
+</div>
+</div>
+
+<div class="section-label" style="margin-top:12px">Current Loadout</div>
+<div style="padding:8px 12px;background:rgba(99,102,241,.05);border-radius:8px;border:1px solid rgba(99,102,241,.1);margin-bottom:8px">
+<div style="font-size:12px;color:#a5b4fc;font-weight:600">Karambit | Fade</div>
+<div style="font-size:10px;color:#4b5563;margin-top:2px">DefIndex: 507 | PaintKit: 38 | Seed: 100</div>
+</div>
+<div style="padding:8px 12px;background:rgba(99,102,241,.05);border-radius:8px;border:1px solid rgba(99,102,241,.1);margin-bottom:8px">
+<div style="font-size:12px;color:#a5b4fc;font-weight:600">AK-47 | Redline</div>
+<div style="font-size:10px;color:#4b5563;margin-top:2px">DefIndex: 7 | PaintKit: 279 | Seed: 661</div>
+</div>
+<div style="padding:8px 12px;background:rgba(99,102,241,.05);border-radius:8px;border:1px solid rgba(99,102,241,.1)">
+<div style="font-size:12px;color:#a5b4fc;font-weight:600">AWP | Dragon Lore</div>
+<div style="font-size:10px;color:#4b5563;margin-top:2px">DefIndex: 9 | PaintKit: 344 | Seed: 36</div>
+</div>
+</div>
+
+<!-- MISC TAB (hidden) -->
+<div class="menu-content" id="tab-misc" style="display:none">
+<div class="section-label">Miscellaneous</div>
+
+<div class="toggle-row">
+<span class="toggle-label">Bunnyhop</span>
+<div class="toggle on" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Anti-Flash</span>
+<div class="toggle" onclick="this.classList.toggle('on')"></div>
+</div>
+<div class="toggle-row">
+<span class="toggle-label">Radar Hack</span>
+<div class="toggle" onclick="this.classList.toggle('on')"></div>
+</div>
+
+<div class="keybind" style="margin-top:8px">
+<span class="toggle-label">Bhop Key</span>
+<span class="keybind-key">SPACE</span>
+</div>
+<div class="keybind">
+<span class="toggle-label">Menu Toggle</span>
+<span class="keybind-key">]</span>
+</div>
+</div>
+
+<!-- Status Bar -->
+<div class="menu-status">
+<div class="status-item">
+<div class="status-dot green"></div>
+CS2 Running
+</div>
+<div class="status-item">
+<div class="status-dot green"></div>
+Offsets OK
+</div>
+<div class="status-item">v7.0</div>
+</div>
+</div>
+
+<script>
+function switchTab(el) {
+document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+el.classList.add('active');
+const tabs = ['aimbot','esp','trigger','skins','misc'];
+const idx = Array.from(el.parentElement.children).indexOf(el);
+document.querySelectorAll('.menu-content').forEach(c => c.style.display = 'none');
+document.getElementById('tab-' + tabs[idx]).style.display = 'block';
+}
+
+function setSlider(track, max, valId) {
+const rect = track.getBoundingClientRect();
+const pct = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+const val = (pct * max).toFixed(max > 10 ? 0 : 1);
+track.querySelector('.slider-fill').style.width = (pct * 100) + '%';
+track.querySelector('.slider-knob').style.left = 'calc(' + (pct * 100) + '% - 7px)';
+document.getElementById(valId).textContent = val;
+}
+</script>
+</body>
+</html>
