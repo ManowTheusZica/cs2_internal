@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRISM CS2 Internal - Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e0e0e0;font-family:'Inter',sans-serif;min-height:100vh;padding:40px 20px}
+.container{max-width:1200px;margin:0 auto}
+h1{font-size:32px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#6b7280;font-size:14px;margin-bottom:40px}
+.section{margin-bottom:40px}
+.section-title{font-size:18px;font-weight:700;color:#a5b4fc;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title span{font-size:20px}
+
+/* Architecture Diagram */
+.arch{background:#111118;border:1px solid #1e1e2e;border-radius:16px;padding:32px;margin-bottom:32px}
+.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.arch-box{background:#16161f;border:1px solid #2a2a3a;border-radius:12px;padding:16px;text-align:center;transition:all .3s}
+.arch-box:hover{border-color:#6366f1;transform:translateY(-2px);box-shadow:0 4px 20px rgba(99,102,241,.15)}
+.arch-box.core{border-color:#3b82f6}
+.arch-box.hooks{border-color:#f59e0b}
+.arch-box.features{border-color:#10b981}
+.arch-icon{font-size:28px;margin-bottom:8px}
+.arch-name{font-weight:700;font-size:14px;margin-bottom:4px}
+.arch-desc{font-size:11px;color:#6b7280}
+.arch-arrow{text-align:center;color:#4b5563;font-size:24px;margin:8px 0}
+
+/* File Tree */
+.tree{background:#111118;border:1px solid #1e1e2e;border-radius:12px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8}
+.tree-item{padding:2px 0;display:flex;align-items:center;gap:8px}
+.tree-item .icon{font-size:14px}
+.tree-item .name{color:#e0e0e0}
+.tree-item .size{color:#4b5563;font-size:11px}
+.tree-item.dir{color:#60a5fa;font-weight:600}
+.tree-indent{padding-left:20px}
+
+/* Code Preview */
+.code-block{background:#0d0d14;border:1px solid #1e1e2e;border-radius:12px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;overflow-x:auto;margin-bottom:16px}
+.code-block .keyword{color:#c084fc}
+.code-block .type{color:#60a5fa}
+.code-block .string{color:#34d399}
+.code-block .comment{color:#4b5563;font-style:italic}
+.code-block .number{color:#f59e0b}
+.code-block .func{color:#f472b6}
+
+/* Feature Cards */
+.features{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.feature{background:#111118;border:1px solid #1e1e2e;border-radius:12px;padding:20px;transition:all .3s}
+.feature:hover{border-color:#6366f1;transform:translateY(-2px)}
+.feature-icon{font-size:24px;margin-bottom:8px}
+.feature-name{font-weight:700;font-size:14px;margin-bottom:4px}
+.feature-desc{font-size:12px;color:#6b7280;line-height:1.5}
+.feature-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;margin-top:8px;font-weight:600}
+.tag-done{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3)}
+.tag-progress{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.tag-todo{background:rgba(107,114,128,.15);color:#9ca3af;border:1px solid rgba(107,114,128,.3)}
+
+/* Build Info */
+.build-info{background:linear-gradient(135deg,#111118,#16161f);border:1px solid #1e1e2e;border-radius:16px;padding:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.build-stat{text-align:center}
+.build-stat .value{font-size:28px;font-weight:800;background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.build-stat .label{font-size:11px;color:#6b7280;margin-top:4px}
+
+@media(max-width:768px){
+.arch-grid,.features{grid-template-columns:1fr}
+.build-info{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>PRISM CS2 Internal</h1>
+<p class="subtitle">Inventory Changer + DLL Injection — Preview do projeto</p>
+
+<!-- Build Stats -->
+<div class="build-info">
+<div class="build-stat">
+<div class="value">9</div>
+<div class="label">Arquivos</div>
+</div>
+<div class="build-stat">
+<div class="value">52KB</div>
+<div class="label">Código Total</div>
+</div>
+<div class="build-stat">
+<div class="value">C++20</div>
+<div class="label">Linguagem</div>
+</div>
+<div class="build-stat">
+<div class="value">x64</div>
+<div class="label">Arquitetura</div>
+</div>
+</div>
+
+<!-- Architecture -->
+<div class="section">
+<div class="section-title"><span>&#128736;</span> Arquitetura</div>
+<div class="arch">
+<div style="text-align:center;margin-bottom:16px">
+<div style="display:inline-block;background:#1e1e2e;border:1px solid #3b82f6;border-radius:8px;padding:8px 16px;font-weight:700;font-size:14px">
+injector.exe &#8594; cs2.exe &#8594; cs2_cheat.dll
+</div>
+</div>
+<div class="arch-grid">
+<div class="arch-box core">
+<div class="arch-icon">&#128190;</div>
+<div class="arch-name">Core/Memory.h</div>
+<div class="arch-desc">Leitura/escrita direta de memória do processo CS2</div>
+</div>
+<div class="arch-box core">
+<div class="arch-icon">&#128204;</div>
+<div class="arch-name">Core/Offsets.h</div>
+<div class="arch-desc">Offsets dinâmicos do cs2-dumper com fallback</div>
+</div>
+<div class="arch-box hooks">
+<div class="arch-icon">&#128279;</div>
+<div class="arch-name">Hooks/Hooks.h</div>
+<div class="arch-desc">SOCacheSubscribed + EquipItemInLoadout hooks</div>
+</div>
+<div class="arch-box features">
+<div class="arch-icon">&#127918;</div>
+<div class="arch-name">InventoryChanger.h</div>
+<div class="arch-desc">Adiciona skins reais ao inventário do jogador</div>
+</div>
+<div class="arch-box" style="border-color:#ef4444">
+<div class="arch-icon">&#128640;</div>
+<div class="arch-name">injector.cpp</div>
+<div class="arch-desc">CreateRemoteThread + LoadLibrary injection</div>
+</div>
+<div class="arch-box" style="border-color:#8b5cf6">
+<div class="arch-icon">&#9881;</div>
+<div class="arch-name">dllmain.cpp</div>
+<div class="arch-desc">Entry point da DLL com console de debug</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- File Tree -->
+<div class="section">
+<div class="section-title"><span>&128193;</span> Estrutura de Arquivos</div>
+<div class="tree">
+<div class="tree-item dir"><span class="icon">&#128193;</span> <span class="name">cs2_internal/</span></div>
+<div class="tree-indent">
+<div class="tree-item"><span class="icon">&#128196;</span> <span class="name">dllmain.cpp</span> <span class="size">2.1 KB</span></div>
+<div class="tree-item"><span class="icon">&#128196;</span> <span class="name">injector.cpp</span> <span class="size">5.4 KB</span></div>
+<div class="tree-item"><span class="icon">&#128196;</span> <span class="name">cs2_internal.vcxproj</span> <span class="size">2.7 KB</span></div>
+<div class="tree-item"><span class="icon">&#128196;</span> <span class="name">BUILD.bat</span> <span class="size">1.5 KB</span></div>
+<div class="tree-item"><span class="icon">&#128196;</span> <span class="name">README.md</span> <span class="size">2.8 KB</span></div>
+<div class="tree-item dir"><span class="icon">&#128193;</span> <span class="name">Core/</span></div>
+<div class="tree-indent">
+<div class="tree-item"><span class="icon">&#128196;</span> <span class="name">Memory.h</span> <span class="size">4.9 KB</span></div>
+<div class="tree-item"><span class="icon">&#128196;</span> <span class="name">Offsets.h</span> <span class="size">10.5 KB</span></div>
+</div>
+<div class="tree-item dir"><span class="icon">&#128193;</span> <span class="name">Features/</span></div>
+<div class="tree-indent">
+<div class="tree-item"><span class="icon">&#127918;</span> <span class="name">InventoryChanger.h</span> <span class="size">10.4 KB</span></div>
+</div>
+<div class="tree-item dir"><span class="icon">&#128193;</span> <span class="name">Hooks/</span></div>
+<div class="tree-indent">
+<div class="tree-item"><span class="icon">&#128279;</span> <span class="name">Hooks.h</span> <span class="size">4.7 KB</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Features -->
+<div class="section">
+<div class="section-title"><span>&#127919;</span> Features</div>
+<div class="features">
+<div class="feature">
+<div class="feature-icon">&#128190;</div>
+<div class="feature-name">Memory Access</div>
+<div class="feature-desc">Acesso direto à memória do CS2 via handle do processo. Read/Write de qualquer tipo.</div>
+<span class="feature-tag tag-done">Completo</span>
+</div>
+<div class="feature">
+<div class="feature-icon">&#128204;</div>
+<div class="feature-name">Dynamic Offsets</div>
+<div class="feature-desc">Auto-download do cs2-dumper com fallback para offsets de agosto/2026.</div>
+<span class="feature-tag tag-done">Completo</span>
+</div>
+<div class="feature">
+<div class="feature-icon">&#127918;</div>
+<div class="feature-name">InventoryChanger</div>
+<div class="feature-desc">Adiciona skins, facas, luvas e agents ao inventário virtual do jogador.</div>
+<span class="feature-tag tag-done">Completo</span>
+</div>
+<div class="feature">
+<div class="feature-icon">&#128279;</div>
+<div class="feature-name">Hook System</div>
+<div class="feature-desc">Framework para hookar funções do jogo (SOCacheSubscribed, EquipItemInLoadout).</div>
+<span class="feature-tag tag-progress">Em progresso</span>
+</div>
+<div class="feature">
+<div class="feature-icon">&#128640;</div>
+<div class="feature-name">DLL Injector</div>
+<div class="feature-desc">CreateRemoteThread + LoadLibraryA injection com detecção automática de CS2.</div>
+<span class="feature-tag tag-done">Completo</span>
+</div>
+<div class="feature">
+<div class="feature-icon">&#127912;</div>
+<div class="feature-name">ImGui Menu</div>
+<div class="feature-desc">Menu in-game com abas para Aimbot, ESP, Skins, Misc.</div>
+<span class="feature-tag tag-todo">Pendente</span>
+</div>
+</div>
+</div>
+
+<!-- Code Preview -->
+<div class="section">
+<div class="section-title"><span>&128187;</span> Preview do Código</div>
+<div class="code-block">
+<span class="comment">// Features/InventoryChanger.h</span><br>
+<br>
+<span class="keyword">struct</span> <span class="type">InventoryItem</span> {<br>
+&nbsp;&nbsp;<span class="type">int</span> weaponDefIndex;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Ex: 7 = AK-47, 507 = Karambit</span><br>
+&nbsp;&nbsp;<span class="type">int</span> paintKit;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Paint kit ID</span><br>
+&nbsp;&nbsp;<span class="type">int</span> seed;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Pattern seed</span><br>
+&nbsp;&nbsp;<span class="type">float</span> wear;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Float (0.0 = Factory New)</span><br>
+&nbsp;&nbsp;<span class="type">int</span> stattrak;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// StatTrak kills</span><br>
+&nbsp;&nbsp;<span class="type">bool</span> isKnife;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Se e faca</span><br>
+&nbsp;&nbsp;<span class="type">bool</span> isGlove;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Se e luva</span><br>
+};<br>
+<br>
+<span class="keyword">class</span> <span class="type">InventoryChanger</span> {<br>
+&nbsp;&nbsp;<span class="keyword">void</span> <span class="func">AddItem</span>(<span class="keyword">const</span> <span class="type">InventoryItem</span>&amp; item);<br>
+&nbsp;&nbsp;<span class="keyword">void</span> <span class="func">Tick</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Aplica skins a cada arma</span><br>
+&nbsp;&nbsp;<span class="keyword">void</span> <span class="func">SetupDefaults</span>();&nbsp;&nbsp;<span class="comment">// AK Redline, AWP Dragon Lore...</span><br>
+};<br>
+<br>
+<span class="comment">// Exemplo de uso:</span><br>
+<span class="type">InventoryChanger</span> ic;<br>
+ic.<span class="func">AddItem</span>({ <span class="number">507</span>, <span class="number">38</span>, <span class="number">100</span>, <span class="number">0.001f</span>, <span class="number">-1</span>, <span class="number">6</span>, <span class="string">"Karambit | Fade"</span>, <span class="keyword">true</span>, <span class="keyword">false</span> });<br>
+ic.<span class="func">Tick</span>();&nbsp;<span class="comment">// Aplica a cada frame</span>
+</div>
+</div>
+
+<!-- How to Build -->
+<div class="section">
+<div class="section-title"><span>&#128295;</span> Como Compilar</div>
+<div style="background:#111118;border:1px solid #1e1e2e;border-radius:12px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8">
+<div style="color:#6b7280;margin-bottom:8px">// 1. Abra Visual Studio Developer Command Prompt</div>
+<div style="color:#6b7280;margin-bottom:8px">// 2. Navegue ate o diretorio do projeto</div>
+<div style="color:#fbbf24">cd cs2_internal</div>
+<div style="color:#6b7280;margin:8px 0">// 3. Rode o script de build</div>
+<div style="color:#34d399">BUILD.bat</div>
+<div style="color:#6b7280;margin:8px 0">// 4. Execute:</div>
+<div style="color:#a5b4fc">injector.exe cs2_cheat.dll</div>
+</div>
+</div>
+
+<p style="text-align:center;color:#4b5563;font-size:12px;margin-top:40px">
+PRISM CS2 Internal v1.0 — Apenas para uso offline (-insecure)
+</p>
+</div>
+</body>
+</html>
